@@ -1,0 +1,62 @@
+PSALMEN 1773 — INSTALLATIE EN PUBLICATIE
+======================================
+
+INHOUD
+index.html   Openbaar dashboard voor computer, telefoon en tablet.
+data.json    Alleen samengevatte zanggegevens (geen preekgegevens).
+synchroniseer.ps1  Windows-script om de JSON opnieuw te maken vanuit Access.
+
+1. DIRECT BEKIJKEN
+Publiceer index.html en data.json in dezelfde map op een webserver.
+Voor een lokale proef kun je in de dashboardmap uitvoeren:
+  py -m http.server 8000
+Open daarna http://localhost:8000 in je browser.
+
+2. ONLINE ZETTEN MET GITHUB PAGES
+- Maak zelf een GitHub-account en een nieuwe OPENBARE repository.
+- Upload index.html en data.json in de hoofdmap van de repository.
+- Ga naar Settings > Pages > Build and deployment > Deploy from a branch.
+- Kies main en / (root) en sla op.
+- GitHub geeft daarna een publieke webadres voor het dashboard.
+LET OP: ook data.json is openbaar toegankelijk voor iedereen op internet.
+
+3. AUTOMATISCH BIJWERKEN VANUIT ACCESS
+Het script synchroniseer.ps1 leest een Access-query met deze veldnamen:
+Datum, Openingspsalm, Openingspsalm_vers, Psalmnagebed,
+Psalmnagebed_vers, Tussenzang, Tussenzang_vers,
+Slotzang, Slotzang_vers.
+
+Maak in Access een opgeslagen SELECT-query met de naam ZangDashboardBron
+met deze kolommen. De exacte tabellen en veldnamen in jouw .accdb zijn
+nog niet geverifieerd; dit moet eenmalig worden aangesloten.
+
+Test het script in Windows PowerShell (ACE OLEDB-driver vereist):
+  powershell -ExecutionPolicy Bypass -File .\synchroniseer.ps1 -DatabasePad "C:\Users\...\OneDrive\Teksten.accdb"
+
+Bij succes wordt data.json lokaal bijgewerkt. De Access-database wordt
+alleen gelezen en nooit door het script gewijzigd.
+
+4. ONLINE GEGEVENS AUTOMATISCH PUBLICEREN
+Voor volledig automatisch publiceren is aanvullend een Git-client met
+GitHub-aanmelding op je Windows-pc nodig. Na een geslaagde synchronisatie
+kun je met een geplande taak deze commando's uitvoeren in de repository:
+  git add data.json
+  git commit -m "Werk zangstatistieken bij"
+  git push
+Plan dit bijvoorbeeld elke 5 minuten met Windows Taakplanner.
+Dit werkt alleen wanneer de computer aanstaat en er internetverbinding is.
+Gebruik niet zomaar een synchronisatie van de hele Access-database naar
+GitHub; publiceer uitsluitend index.html en data.json.
+
+5. NOG NIET AFGEROND
+- Volledige geverifieerde coupletaantallen van 1773 ontbreken nog. Het
+  dashboard toont tot dusver de hoogste geregistreerde versnummergrens.
+- Het Access-queryschema moet nog worden gekoppeld aan jouw echte tabellen.
+- De GitHub-repository en Windows-taak moeten nog worden ingericht.
+- Controleer de wijze waarop samengestelde versnummers in Access staan:
+  het script herkent losse nummers gescheiden door komma, puntkomma of spatie.
+  Reeksen zoals 1-3 worden nog niet uitgewerkt.
+
+BRON
+Momentopname uit Preken Boskoop.xlsx, 497 registraties. De openbare
+JSON bevat per psalm/gezang/couplet uitsluitend frequentie en laatste datum.
